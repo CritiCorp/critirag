@@ -16,6 +16,7 @@ import { useGetNudgesQuery } from "../api/queries/useGetNudgesQuery";
 import { useGetSettingsQuery } from "../api/queries/useGetSettingsQuery";
 import { AssistantMessage } from "./_components/assistant-message";
 import { ChatInput, type ChatInputHandle } from "./_components/chat-input";
+import { ErrorMessage } from "./_components/error-message";
 import Nudges from "./_components/nudges";
 import { UserMessage } from "./_components/user-message";
 import type {
@@ -283,6 +284,7 @@ function ChatPage() {
         role: "assistant",
         content: `❌ Failed to process document. Please try again.`,
         timestamp: new Date(),
+				error: true,
       };
       setMessages((prev) => [...prev.slice(0, -1), errorMessage]);
     } finally {
@@ -367,6 +369,7 @@ function ChatPage() {
           content: string;
           timestamp?: string;
           response_id?: string;
+					error?: boolean;
           chunks?: Array<{
             item?: {
               type?: string;
@@ -394,6 +397,7 @@ function ChatPage() {
             role: msg.role as "user" | "assistant",
             content: msg.content,
             timestamp: new Date(msg.timestamp || new Date()),
+						error: msg.error || false,
           };
 
           // Extract function calls from chunks or response_data
@@ -851,6 +855,7 @@ function ChatPage() {
             role: "assistant",
             content: "Sorry, I encountered an error. Please try again.",
             timestamp: new Date(),
+						error: true,
           };
           setMessages((prev) => [...prev, errorMessage]);
         }
@@ -863,6 +868,7 @@ function ChatPage() {
           content:
             "Sorry, I couldn't connect to the chat service. Please try again.",
           timestamp: new Date(),
+					error: true,
         };
         setMessages((prev) => [...prev, errorMessage]);
       }
@@ -1034,7 +1040,7 @@ function ChatPage() {
       )}
 
       <StickToBottom.Content className="flex flex-col min-h-full overflow-x-hidden p-6">
-        <div className="flex flex-col place-self-center space-y-6 max-w-[960px] w-full mx-auto">
+        <div className="flex flex-col place-self-center space-y-6 max-w-content w-full mx-auto">
           {messages.length === 0 && !streamingMessage ? (
             <div className="flex items-center justify-center h-full text-muted-foreground">
               <div className="text-center">
@@ -1095,23 +1101,30 @@ function ChatPage() {
                         }-${index}-${message.timestamp?.getTime()}`}
                         className="space-y-6 group"
                       >
-                        <AssistantMessage
-                          content={message.content}
-                          functionCalls={message.functionCalls}
-                          messageIndex={index}
-                          expandedFunctionCalls={expandedFunctionCalls}
-                          onToggle={toggleFunctionCall}
-                          showForkButton={endpoint === "chat"}
-                          onFork={(e) => handleForkConversation(index, e)}
-                          animate={false}
-                          isInactive={index < messages.length - 1}
-                          isInitialGreeting={
-                            index === 0 &&
-                            messages.length === 1 &&
-                            message.content === "How can I assist?"
-                          }
-                          usage={message.usage}
-                        />
+                        {message.error ? (
+                          <ErrorMessage
+                            content={message.content}
+                            animate={false}
+                          />
+                        ) : (
+                          <AssistantMessage
+                            content={message.content}
+                            functionCalls={message.functionCalls}
+                            messageIndex={index}
+                            expandedFunctionCalls={expandedFunctionCalls}
+                            onToggle={toggleFunctionCall}
+                            showForkButton={endpoint === "chat"}
+                            onFork={(e) => handleForkConversation(index, e)}
+                            animate={false}
+                            isInactive={index < messages.length - 1}
+                            isInitialGreeting={
+                              index === 0 &&
+                              messages.length === 1 &&
+                              message.content === "How can I assist?"
+                            }
+                            usage={message.usage}
+                          />
+                        )}
                       </div>
                     ),
               )}
@@ -1155,7 +1168,7 @@ function ChatPage() {
           )}
         </div>
       </StickToBottom.Content>
-      <div className="p-6 pt-0 max-w-[960px] mx-auto w-full">
+      <div className="p-6 pt-0 max-w-content mx-auto w-full">
         {/* Input Area - Fixed at bottom */}
         <ChatInput
           ref={chatInputRef}
