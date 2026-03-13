@@ -1,63 +1,64 @@
 export default function IBMCOSIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 32 32"
       width="16"
       height="16"
+      viewBox="0 0 32 32"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
+      <rect width="32" height="32" fill="white" fillOpacity="0.01" />
+      <mask
+        id="mask0_40_3996"
+        style={{ maskType: "luminance" }}
+        maskUnits="userSpaceOnUse"
+        x="2"
+        y="19"
+        width="28"
+        height="11"
+      >
+        <path
+          d="M7 26C7.55228 26 8 25.5523 8 25C8 24.4477 7.55228 24 7 24C6.44772 24 6 24.4477 6 25C6 25.5523 6.44772 26 7 26Z"
+          fill="white"
+        />
+        <path
+          d="M28 20H26V22H28V28H4V22H14V20H4C3.46957 20 2.96086 20.2107 2.58579 20.5858C2.21071 20.9609 2 21.4696 2 22V28C2 28.5304 2.21071 29.0391 2.58579 29.4142C2.96086 29.7893 3.46957 30 4 30H28C28.5304 30 29.0391 29.7893 29.4142 29.4142C29.7893 29.0391 30 28.5304 30 28V22C30 21.4696 29.7893 20.9609 29.4142 20.5858C29.0391 20.2107 28.5304 20 28 20Z"
+          fill="white"
+        />
+        <path d="M15 23H4V19H15V23Z" fill="url(#paint0_linear_40_3996)" />
+      </mask>
+      <g mask="url(#mask0_40_3996)">
+        <rect width="32" height="32" fill="url(#paint1_linear_40_3996)" />
+      </g>
+      <path
+        d="M18 10H10V2H18V10ZM12 8H16V4H12V8ZM22 14H16V22H24V16H30V8H22V14ZM22 20H18V16H22V20ZM28 10V14H24V10H28Z"
+        fill="currentColor"
+      />
       <defs>
         <linearGradient
-          id="ibm-cos-grad-a"
-          x1="827.5"
-          y1="4690.5"
-          x2="838.5"
-          y2="4690.5"
-          gradientTransform="translate(-823.5 -4669.5)"
+          id="paint0_linear_40_3996"
+          x1="15"
+          y1="21"
+          x2="4"
+          y2="21"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset=".1" />
-          <stop offset=".888" stopOpacity="0" />
+          <stop offset="0.1" />
+          <stop offset="0.888" stopOpacity="0" />
         </linearGradient>
         <linearGradient
-          id="ibm-cos-grad-b"
-          y1="32"
-          x2="32"
+          id="paint1_linear_40_3996"
+          x1="32"
+          y1="0"
+          x2="0"
+          y2="32"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset=".1" stopColor="#a56eff" />
-          <stop offset=".9" stopColor="#0f62fe" />
+          <stop offset="0.1" stopColor="#0F62FE" />
+          <stop offset="0.9" stopColor="#A56EFF" />
         </linearGradient>
-        <mask
-          id="ibm-cos-mask"
-          x="0"
-          y="0"
-          width="32"
-          height="32"
-          maskUnits="userSpaceOnUse"
-        >
-          <circle cx="7" cy="25" r="1" fill="#fff" />
-          <path
-            d="M28 20h-2v2h2v6H4v-6h10v-2H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h24a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2z"
-            fill="#fff"
-          />
-          <path
-            transform="rotate(180 9.5 21)"
-            fill="url(#ibm-cos-grad-a)"
-            d="M4 19h11v4H4z"
-          />
-        </mask>
       </defs>
-      <g>
-        <g mask="url(#ibm-cos-mask)">
-          <path fill="url(#ibm-cos-grad-b)" d="M0 0h32v32H0z" />
-        </g>
-        <path
-          d="M18 10h-8V2h8zm-6-2h4V4h-4zm10 6h-6v8h8v-6h6V8h-8zm0 6h-4v-4h4zm6-10v4h-4v-4z"
-          fill="#001d6c"
-        />
-      </g>
     </svg>
   );
 }

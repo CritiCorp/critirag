@@ -45,7 +45,6 @@ export default function ConnectorCard({
   console.log(connector);
   const isConnected =
     connector.status === "connected" && connector.connectionId;
-  connector?.status === "connected" && connector?.connectionId;
 
   return (
     <Card className="group relative flex flex-col hover:bg-secondary-hover hover:border-muted-foreground transition-colors">
@@ -93,7 +92,9 @@ export default function ConnectorCard({
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => onConnect(connector)}
+                  onClick={() =>
+                    onConfigure ? onConfigure(connector) : onConnect(connector)
+                  }
                   disabled={isConnecting || isDisconnecting}
                   className="cursor-pointer"
                   size="iconMd"
@@ -101,7 +102,7 @@ export default function ConnectorCard({
                   {isConnecting ? (
                     <RefreshCcw className="h-4 w-4 animate-spin" />
                   ) : (
-                    <RefreshCcw className="h-4 w-4" />
+                    <Settings2 className="h-4 w-4" />
                   )}
                 </Button>
                 <Button
@@ -120,45 +121,24 @@ export default function ConnectorCard({
               </div>
             ) : (
               <Button
-                variant="outline"
-                onClick={() => onConnect(connector)}
-                disabled={isConnecting || isDisconnecting}
-                className="cursor-pointer"
-                size="iconMd"
+                onClick={() =>
+                  onConfigure ? onConfigure(connector) : onConnect(connector)
+                }
+                disabled={isConnecting}
+                className="w-full cursor-pointer group-hover:bg-background group-hover:border-zinc-700 group-hover:text-primary"
+                size="sm"
               >
                 {isConnecting ? (
-                  <RefreshCcw className="h-4 w-4 animate-spin" />
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Connecting...
+                  </>
                 ) : (
-                  <RefreshCcw className="h-4 w-4" />
+                  <>Connect</>
                 )}
               </Button>
             )}
           </div>
-        ) : onConfigure ? (
-          <Button
-            onClick={() => onConfigure(connector)}
-            disabled={isConnecting}
-            className="w-full cursor-pointer group-hover:bg-background group-hover:border-zinc-700 group-hover:text-primary"
-            size="sm"
-          >
-            Configure
-          </Button>
-        ) : connector?.available ? (
-          <Button
-            onClick={() => onConnect(connector)}
-            disabled={isConnecting}
-            className="w-full cursor-pointer group-hover:bg-background group-hover:border-zinc-700 group-hover:text-primary"
-            size="sm"
-          >
-            {isConnecting ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Connecting...
-              </>
-            ) : (
-              <>Connect</>
-            )}
-          </Button>
         ) : (
           <div className="text-sm text-muted-foreground">
             <p>For more details see our</p>

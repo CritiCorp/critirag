@@ -1,7 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { AlertCircle, ArrowLeft, RefreshCw } from "lucide-react";
+import { AlertCircle, ArrowLeft, FolderOpen, RefreshCw } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -52,7 +52,9 @@ function BucketView({
   onDone: () => void;
 }) {
   const queryClient = useQueryClient();
-  const [syncingBucket, setSyncingBucket] = useState<string | null>(null);
+  const [selectedBuckets, setSelectedBuckets] = useState<Set<string>>(
+    new Set(),
+  );
   const [ingestSettings, setIngestSettings] = useState<IngestSettingsType>({
     chunkSize: 1000,
     chunkOverlap: 200,
@@ -66,59 +68,40 @@ function BucketView({
     queryClient.invalidateQueries({ queryKey: invalidateQueryKey });
   };
 
-  const syncAll = () => {
-    syncMutation.mutate(
-      {
-        connectorType: connector.type,
-        body: {
-          connection_id: connector.connectionId!,
-          selected_files: [],
-          sync_all: true,
-          settings: ingestSettings,
-        },
-      },
-      {
-        onSuccess: (result) => {
-          invalidate();
-          if (result.task_ids?.length) {
-            addTask(result.task_ids[0]);
-            onDone();
-          } else {
-            toast.info("No files found in any bucket.");
-          }
-        },
-        onError: (err) => {
-          toast.error(err instanceof Error ? err.message : "Sync failed");
-        },
-      },
-    );
+  const toggleBucket = (bucketName: string) => {
+    setSelectedBuckets((prev) => {
+      const next = new Set(prev);
+      if (next.has(bucketName)) {
+        next.delete(bucketName);
+      } else {
+        next.add(bucketName);
+      }
+      return next;
+    });
   };
 
-  const syncBucket = (bucketName: string) => {
-    setSyncingBucket(bucketName);
+  const ingestSelected = () => {
     syncMutation.mutate(
       {
         connectorType: connector.type,
         body: {
           connection_id: connector.connectionId!,
           selected_files: [],
-          bucket_filter: [bucketName],
+          bucket_filter: Array.from(selectedBuckets),
           settings: ingestSettings,
         },
       },
       {
         onSuccess: (result) => {
-          setSyncingBucket(null);
           invalidate();
           if (result.task_ids?.length) {
             addTask(result.task_ids[0]);
             onDone();
           } else {
-            toast.info(`No files found in bucket "${bucketName}".`);
+            toast.info("No files found in the selected buckets.");
           }
         },
         onError: (err) => {
-          setSyncingBucket(null);
           toast.error(err instanceof Error ? err.message : "Sync failed");
         },
       },
@@ -139,17 +122,32 @@ function BucketView({
       <div className="max-w-3xl mx-auto space-y-4">
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Select a bucket to ingest, or sync everything at once.
+            Select buckets to ingest.
           </p>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onRefetch}
-            disabled={isLoading}
-            title="Refresh bucket status"
-          >
-            <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                setSelectedBuckets(new Set(buckets?.map((b) => b.name) ?? []))
+              }
+              disabled={isLoading || !buckets?.length}
+            >
+              Select All
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onRefetch}
+              disabled={isLoading}
+            >
+              <RefreshCw
+                size={14}
+                className={isLoading ? "animate-spin" : ""}
+              />
+              Refresh
+            </Button>
+          </div>
         </div>
 
         {isLoading ? (
@@ -167,34 +165,54 @@ function BucketView({
           </div>
         ) : (
           <div className="rounded-lg border divide-y">
-            {buckets.map((bucket) => (
-              <div
-                key={bucket.name}
-                className="flex items-center justify-between px-4 py-3"
-              >
-                <div>
-                  <p className="font-medium text-sm">{bucket.name}</p>
-                  {bucket.ingested_count > 0 && (
-                    <p className="text-xs text-muted-foreground">
-                      {bucket.ingested_count} document
-                      {bucket.ingested_count !== 1 ? "s" : ""} ingested
-                    </p>
-                  )}
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => syncBucket(bucket.name)}
-                  disabled={syncMutation.isPending}
+            {buckets.map((bucket) => {
+              const isSelected = selectedBuckets.has(bucket.name);
+              return (
+                <div
+                  key={bucket.name}
+                  className="flex items-center gap-[18px] px-4 py-3 cursor-pointer"
+                  onClick={() => toggleBucket(bucket.name)}
                 >
-                  {syncingBucket === bucket.name
-                    ? "Ingesting…"
-                    : bucket.ingested_count > 0
-                      ? "Re-sync"
-                      : "Ingest"}
-                </Button>
-              </div>
-            ))}
+                  <div
+                    className={`shrink-0 size-5 rounded-[6px] border-2 flex items-center justify-center transition-colors ${
+                      isSelected
+                        ? "bg-foreground border-foreground"
+                        : "border-muted-foreground/60"
+                    }`}
+                  >
+                    {isSelected && (
+                      <svg
+                        viewBox="0 0 12 12"
+                        fill="none"
+                        className="size-3 text-background"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <polyline points="2,6 5,9 10,3" />
+                      </svg>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-4 flex-1 min-w-0">
+                    <div className="bg-white/5 rounded-[10px] shrink-0 size-10 flex items-center justify-center">
+                      <FolderOpen size={20} className="text-muted-foreground" />
+                    </div>
+                    <div className="flex flex-col gap-1 min-w-0">
+                      <p className="font-medium text-sm leading-6">
+                        {bucket.name}
+                      </p>
+                      {bucket.ingested_count > 0 && (
+                        <p className="text-xs text-muted-foreground">
+                          {bucket.ingested_count} document
+                          {bucket.ingested_count !== 1 ? "s" : ""} ingested
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
 
@@ -217,13 +235,15 @@ function BucketView({
           </Button>
           <Button
             className="bg-foreground text-background hover:bg-foreground/90 font-semibold"
-            onClick={syncAll}
-            disabled={syncMutation.isPending}
-            loading={syncMutation.isPending && !syncingBucket}
+            onClick={ingestSelected}
+            disabled={syncMutation.isPending || selectedBuckets.size === 0}
+            loading={syncMutation.isPending}
           >
-            {syncMutation.isPending && !syncingBucket
+            {syncMutation.isPending
               ? "Ingesting…"
-              : "Sync All Buckets"}
+              : selectedBuckets.size > 0
+                ? `Ingest ${selectedBuckets.size} Bucket${selectedBuckets.size !== 1 ? "s" : ""}`
+                : "Select Buckets to Ingest"}
           </Button>
         </div>
       </div>
