@@ -683,12 +683,15 @@ test-ci: ## Start infra, run integration + SDK tests, tear down (uses DockerHub 
 		chmod 600 keys/private_key.pem 2>/dev/null || true; \
 		chmod 644 keys/public_key.pem 2>/dev/null || true; \
 	fi; \
+	echo "::group::Cleanup, Pull & Build Images"; \
 	echo "$(YELLOW)Cleaning up old containers and volumes...$(NC)"; \
 	$(COMPOSE_CMD) down -v 2>/dev/null || true; \
 	echo "$(YELLOW)Pulling latest images...$(NC)"; \
 	$(COMPOSE_CMD) pull; \
 	echo "$(YELLOW)Building OpenSearch image override...$(NC)"; \
 	$(CONTAINER_RUNTIME) build --no-cache -t langflowai/openrag-opensearch:latest -f Dockerfile .; \
+	echo "::endgroup::"; \
+	echo "::group::Start Infrastructure"; \
 	echo "$(YELLOW)Starting infra (OpenSearch + Dashboards + Langflow + Backend + Frontend) with CPU containers$(NC)"; \
 	OPENSEARCH_HOST=opensearch $(COMPOSE_CMD) up -d opensearch dashboards langflow openrag-backend openrag-frontend; \
 	echo "$(CYAN)Architecture: $$(uname -m), Platform: $$(uname -s)$(NC)"; \
@@ -754,6 +757,7 @@ test-ci: ## Start infra, run integration + SDK tests, tear down (uses DockerHub 
 		$(COMPOSE_CMD) down -v 2>/dev/null || true; \
 		exit 1; \
 	fi; \
+	echo "::endgroup::"; \
 	echo "::group::Core Integration Tests"; \
 	echo "$(CYAN)════════════════════════════════════════$(NC)"; \
 	echo "$(PURPLE) Core Integration Tests$(NC)"; \
@@ -808,6 +812,7 @@ test-ci-local: ## Same as test-ci but builds all images locally
 		chmod 600 keys/private_key.pem 2>/dev/null || true; \
 		chmod 644 keys/public_key.pem 2>/dev/null || true; \
 	fi; \
+	echo "::group::Cleanup & Build Images"; \
 	echo "$(YELLOW)Cleaning up old containers and volumes...$(NC)"; \
 	$(COMPOSE_CMD) down -v 2>/dev/null || true; \
 	echo "$(YELLOW)Building all images locally...$(NC)"; \
@@ -815,6 +820,8 @@ test-ci-local: ## Same as test-ci but builds all images locally
 	$(CONTAINER_RUNTIME) build -t langflowai/openrag-backend:latest -f Dockerfile.backend .; \
 	$(CONTAINER_RUNTIME) build -t langflowai/openrag-frontend:latest -f Dockerfile.frontend .; \
 	$(CONTAINER_RUNTIME) build -t langflowai/openrag-langflow:latest -f Dockerfile.langflow .; \
+	echo "::endgroup::"; \
+	echo "::group::Start Infrastructure"; \
 	echo "$(YELLOW)Starting infra (OpenSearch + Dashboards + Langflow + Backend + Frontend) with CPU containers$(NC)"; \
 	echo "$(CYAN)Architecture: $$(uname -m), Platform: $$(uname -s)$(NC)"; \
 	OPENSEARCH_HOST=opensearch $(COMPOSE_CMD) up -d opensearch dashboards langflow openrag-backend openrag-frontend; \
@@ -880,6 +887,7 @@ test-ci-local: ## Same as test-ci but builds all images locally
 		$(COMPOSE_CMD) down -v 2>/dev/null || true; \
 		exit 1; \
 	fi; \
+	echo "::endgroup::"; \
 	echo "::group::Core Integration Tests"; \
 	echo "$(CYAN)════════════════════════════════════════$(NC)"; \
 	echo "$(PURPLE) Core Integration Tests$(NC)"; \
