@@ -19,6 +19,10 @@ class AnthropicBody(BaseModel):
     api_key: Optional[str] = None
 
 
+class GoogleBody(BaseModel):
+    api_key: Optional[str] = None
+
+
 class IBMBody(BaseModel):
     api_key: Optional[str] = None
     endpoint: Optional[str] = None
@@ -163,3 +167,31 @@ async def get_ibm_models(
     except Exception as e:
         logger.error(f"Failed to get IBM models: {str(e)}")
         return JSONResponse({"error": f"Failed to retrieve IBM models: {str(e)}"}, status_code=500)
+
+
+async def get_google_models(
+    body: Optional[GoogleBody] = None,
+    models_service=Depends(get_models_service),
+    user: User = Depends(get_current_user),
+):
+    """Get available Google Gemini models"""
+    try:
+        api_key = body.api_key if body else None
+        if not api_key:
+            try:
+                config = get_openrag_config()
+                api_key = config.providers.google.api_key
+            except Exception as e:
+                logger.error(f"Failed to get config: {e}")
+
+        if not api_key:
+            return JSONResponse(
+                {"error": "Google API key is required either in request body or in configuration"},
+                status_code=400,
+            )
+
+        models = await models_service.get_google_models(api_key=api_key)
+        return JSONResponse(models)
+    except Exception as e:
+        logger.error(f"Failed to get Google models: {str(e)}")
+        return JSONResponse({"error": f"Failed to retrieve Google models: {str(e)}"}, status_code=500)

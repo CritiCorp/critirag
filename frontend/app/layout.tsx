@@ -27,8 +27,8 @@ const chivo = Chivo({
 });
 
 export const metadata: Metadata = {
-  title: "OpenRAG",
-  description: "Open source RAG (Retrieval Augmented Generation) system",
+  title: "CritiRAG",
+  description: "Intelligent document search and AI-powered conversations by CritiCo",
 };
 export default function RootLayout({
   children,

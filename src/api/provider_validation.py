@@ -189,6 +189,8 @@ async def test_lightweight_health(
         await _test_ollama_lightweight_health(endpoint)
     elif provider == "anthropic":
         await _test_anthropic_lightweight_health(api_key)
+    elif provider == "google":
+        await _test_google_lightweight_health(api_key)
     else:
         raise ValueError(f"Unknown provider: {provider}")
 
@@ -210,6 +212,8 @@ async def test_completion_with_tools(
         await _test_ollama_completion_with_tools(llm_model, endpoint)
     elif provider == "anthropic":
         await _test_anthropic_completion_with_tools(api_key, llm_model)
+    elif provider == "google":
+        await _test_google_completion_with_tools(api_key, llm_model)
     else:
         raise ValueError(f"Unknown provider: {provider}")
 
@@ -229,6 +233,8 @@ async def test_embedding(
         await _test_watsonx_embedding(api_key, embedding_model, endpoint, project_id)
     elif provider == "ollama":
         await _test_ollama_embedding(embedding_model, endpoint)
+    elif provider == "google":
+        await _test_google_embedding(api_key, embedding_model)
     else:
         raise ValueError(f"Unknown provider: {provider}")
 
@@ -805,4 +811,124 @@ async def _test_anthropic_completion_with_tools(api_key: str, llm_model: str) ->
         raise Exception("Request timed out")
     except Exception as e:
         logger.error(f"Anthropic completion test failed: {str(e)}")
+        raise
+
+
+# Google Gemini validation functions
+# Note: Google API uses ?key= query parameter instead of Authorization header.
+_GOOGLE_BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
+
+
+async def _test_google_lightweight_health(api_key: str) -> None:
+    """Test Google Gemini API key validity with lightweight check.
+
+    Lists available models via the REST API — validates the key without consuming credits.
+    """
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"{_GOOGLE_BASE_URL}/models",
+                params={"key": api_key},
+                timeout=10.0,
+            )
+
+            if response.status_code != 200:
+                error_details = _extract_error_details(response)
+                logger.error(f"Google lightweight health check failed: {response.status_code} - {error_details}")
+                raise Exception(f"Google API key validation failed: {error_details}")
+
+            logger.info("Google lightweight health check passed")
+
+    except httpx.TimeoutException:
+        logger.error("Google lightweight health check timed out")
+        raise Exception("Google API request timed out")
+    except Exception as e:
+        logger.error(f"Google lightweight health check failed: {str(e)}")
+        raise
+
+
+async def _test_google_completion_with_tools(api_key: str, llm_model: str) -> None:
+    """Test Google Gemini completion with function calling (tool use)."""
+    try:
+        payload = {
+            "contents": [
+                {"role": "user", "parts": [{"text": "What tools do you have available?"}]}
+            ],
+            "tools": [
+                {
+                    "function_declarations": [
+                        {
+                            "name": "get_weather",
+                            "description": "Get the current weather",
+                            "parameters": {
+                                "type": "object",
+                                "properties": {
+                                    "location": {
+                                        "type": "string",
+                                        "description": "The city and state",
+                                    }
+                                },
+                                "required": ["location"],
+                            },
+                        }
+                    ]
+                }
+            ],
+            "generationConfig": {"maxOutputTokens": 50},
+        }
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f"{_GOOGLE_BASE_URL}/models/{llm_model}:generateContent",
+                params={"key": api_key},
+                json=payload,
+                timeout=30.0,
+            )
+
+            if response.status_code != 200:
+                error_details = _extract_error_details(response)
+                logger.error(f"Google completion test failed: {response.status_code} - {error_details}")
+                raise Exception(f"Google API error: {error_details}")
+
+            logger.info("Google completion with function calling test passed")
+
+    except httpx.TimeoutException:
+        logger.error("Google completion test timed out")
+        raise Exception("Request timed out")
+    except Exception as e:
+        logger.error(f"Google completion test failed: {str(e)}")
+        raise
+
+
+async def _test_google_embedding(api_key: str, embedding_model: str) -> None:
+    """Test Google Gemini embedding generation."""
+    try:
+        payload = {
+            "content": {"parts": [{"text": "test embedding"}]},
+        }
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f"{_GOOGLE_BASE_URL}/models/{embedding_model}:embedContent",
+                params={"key": api_key},
+                json=payload,
+                timeout=30.0,
+            )
+
+            if response.status_code != 200:
+                error_details = _extract_error_details(response)
+                logger.error(f"Google embedding test failed: {response.status_code} - {error_details}")
+                raise Exception(f"Google API error: {error_details}")
+
+            data = response.json()
+            if not data.get("embedding") or not data["embedding"].get("values"):
+                raise Exception("No embedding data returned")
+
+            logger.info("Google embedding test passed")
+
+    except httpx.TimeoutException:
+        logger.error("Google embedding test timed out")
+        raise Exception("Request timed out")
+    except Exception as e:
+        logger.error(f"Google embedding test failed: {str(e)}")
         raise

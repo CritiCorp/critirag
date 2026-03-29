@@ -42,7 +42,7 @@ _background_tasks: set[asyncio.Task] = set()
 
 class SettingsUpdateBody(BaseModel):
     llm_model: Optional[str] = Field(None, min_length=1)
-    llm_provider: Optional[str] = Field(None, pattern="^(openai|anthropic|watsonx|ollama)$")
+    llm_provider: Optional[str] = Field(None, pattern="^(openai|anthropic|watsonx|ollama|google)$")
     system_prompt: Optional[str] = None
     chunk_size: Optional[int] = Field(None, gt=0)
     chunk_overlap: Optional[int] = Field(None, ge=0)
@@ -50,7 +50,7 @@ class SettingsUpdateBody(BaseModel):
     ocr: Optional[bool] = None
     picture_descriptions: Optional[bool] = None
     embedding_model: Optional[str] = Field(None, min_length=1)
-    embedding_provider: Optional[str] = Field(None, pattern="^(openai|watsonx|ollama)$")
+    embedding_provider: Optional[str] = Field(None, pattern="^(openai|watsonx|ollama|google)$")
     index_name: Optional[str] = Field(None, min_length=1)
     openai_api_key: Optional[str] = Field(None, min_length=1)
     anthropic_api_key: Optional[str] = Field(None, min_length=1)
@@ -58,16 +58,18 @@ class SettingsUpdateBody(BaseModel):
     watsonx_endpoint: Optional[str] = Field(None, min_length=1)
     watsonx_project_id: Optional[str] = Field(None, min_length=1)
     ollama_endpoint: Optional[str] = Field(None, min_length=1)
+    google_api_key: Optional[str] = Field(None, min_length=1)
     remove_ollama_config: Optional[bool] = None
     remove_openai_config: Optional[bool] = None
     remove_anthropic_config: Optional[bool] = None
     remove_watsonx_config: Optional[bool] = None
+    remove_google_config: Optional[bool] = None
 
 
 class OnboardingBody(BaseModel):
-    llm_provider: Optional[str] = Field(None, pattern="^(openai|anthropic|watsonx|ollama)$")
+    llm_provider: Optional[str] = Field(None, pattern="^(openai|anthropic|watsonx|ollama|google)$")
     llm_model: Optional[str] = Field(None, min_length=1)
-    embedding_provider: Optional[str] = Field(None, pattern="^(openai|watsonx|ollama)$")
+    embedding_provider: Optional[str] = Field(None, pattern="^(openai|watsonx|ollama|google)$")
     embedding_model: Optional[str] = Field(None, min_length=1)
     openai_api_key: Optional[str] = Field(None, min_length=1)
     anthropic_api_key: Optional[str] = Field(None, min_length=1)
@@ -75,6 +77,7 @@ class OnboardingBody(BaseModel):
     watsonx_endpoint: Optional[str] = Field(None, min_length=1)
     watsonx_project_id: Optional[str] = Field(None, min_length=1)
     ollama_endpoint: Optional[str] = Field(None, min_length=1)
+    google_api_key: Optional[str] = Field(None, min_length=1)
 
 
 class AssistantMessage(BaseModel):
@@ -131,11 +134,16 @@ class OllamaProviderConfig(BaseModel):
     endpoint: Optional[str]
     configured: bool
 
+class GoogleProviderConfig(BaseModel):
+    has_api_key: bool
+    configured: bool
+
 class ProvidersConfig(BaseModel):
     openai: OpenAIProviderConfig
     anthropic: AnthropicProviderConfig
     watsonx: WatsonXProviderConfig
     ollama: OllamaProviderConfig
+    google: GoogleProviderConfig
 
 class KnowledgeConfig(BaseModel):
     embedding_model: Optional[str]
@@ -353,6 +361,10 @@ async def get_settings(
                     endpoint=openrag_config.providers.ollama.endpoint or None,
                     configured=openrag_config.providers.ollama.configured,
                 ),
+                google=GoogleProviderConfig(
+                    has_api_key=bool(openrag_config.providers.google.api_key),
+                    configured=openrag_config.providers.google.configured,
+                ),
             ),
             knowledge=KnowledgeConfig(
                 embedding_model=knowledge_config.embedding_model,
@@ -384,15 +396,15 @@ async def get_settings(
 
 def _first_configured_llm_provider(config, excluding: str) -> str:
     """Return the first configured LLM provider that isn't `excluding`."""
-    for p in ["openai", "anthropic", "watsonx", "ollama"]:
+    for p in ["openai", "anthropic", "watsonx", "ollama", "google"]:
         if p != excluding and getattr(config.providers, p).configured:
             return p
     return "openai"
 
 
 def _first_configured_embedding_provider(config, excluding: str) -> str:
-    """Return the first configured embedding provider (openai/watsonx/ollama) that isn't `excluding`."""
-    for p in ["openai", "watsonx", "ollama"]:
+    """Return the first configured embedding provider that isn't `excluding`."""
+    for p in ["openai", "watsonx", "ollama", "google"]:
         if p != excluding and getattr(config.providers, p).configured:
             return p
     return "openai"
@@ -430,6 +442,7 @@ async def update_settings(
             "watsonx_endpoint",
             "watsonx_project_id",
             "ollama_endpoint",
+            "google_api_key",
         ]
         
         should_validate = any(getattr(body, field) is not None for field in provider_fields)
@@ -722,6 +735,35 @@ async def update_settings(
             config_updated = True
             provider_updated = True
 
+        if body.google_api_key is not None and body.google_api_key.strip():
+            current_config.providers.google.api_key = body.google_api_key.strip()
+            current_config.providers.google.configured = True
+            config_updated = True
+            provider_updated = True
+
+        if body.remove_google_config:
+            other_providers_configured = (
+                current_config.providers.openai.configured
+                or current_config.providers.anthropic.configured
+                or current_config.providers.watsonx.configured
+                or current_config.providers.ollama.configured
+            )
+            if not other_providers_configured:
+                return JSONResponse(
+                    {"error": "Cannot remove Google configuration: configure another model provider first."},
+                    status_code=400,
+                )
+            current_config.providers.google.api_key = ""
+            current_config.providers.google.configured = False
+            if current_config.agent.llm_provider == "google":
+                current_config.agent.llm_provider = _first_configured_llm_provider(current_config, "google")
+                current_config.agent.llm_model = ""
+            if current_config.knowledge.embedding_provider == "google":
+                current_config.knowledge.embedding_provider = _first_configured_embedding_provider(current_config, "google")
+                current_config.knowledge.embedding_model = ""
+            config_updated = True
+            provider_updated = True
+
         if body.remove_ollama_config:
             other_providers_configured = (
                 current_config.providers.openai.configured
@@ -989,6 +1031,11 @@ async def onboarding(
             current_config.providers.ollama.configured = True
             config_updated = True
 
+        if body.google_api_key:
+            current_config.providers.google.api_key = body.google_api_key.strip()
+            current_config.providers.google.configured = True
+            config_updated = True
+
         # Mark providers as configured if they were chosen during onboarding
         # Check LLM provider
         if body.llm_provider:
@@ -1005,6 +1052,9 @@ async def onboarding(
             elif llm_provider == "ollama" and current_config.providers.ollama.endpoint:
                 current_config.providers.ollama.configured = True
                 logger.info("Marked Ollama as configured (chosen as LLM provider)")
+            elif llm_provider == "google" and current_config.providers.google.api_key:
+                current_config.providers.google.configured = True
+                logger.info("Marked Google as configured (chosen as LLM provider)")
 
         # Check embedding provider
         if body.embedding_provider:
@@ -1018,6 +1068,9 @@ async def onboarding(
             elif embedding_provider == "ollama" and current_config.providers.ollama.endpoint:
                 current_config.providers.ollama.configured = True
                 logger.info("Marked Ollama as configured (chosen as embedding provider)")
+            elif embedding_provider == "google" and current_config.providers.google.api_key:
+                current_config.providers.google.configured = True
+                logger.info("Marked Google as configured (chosen as embedding provider)")
 
         should_ingest_sample_data = INGEST_SAMPLE_DATA
         if should_ingest_sample_data:

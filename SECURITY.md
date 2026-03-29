@@ -1,8 +1,8 @@
-# OpenRAG security policy and responsible disclosure
+# CritiRAG security policy and responsible disclosure
 
 ## Security policy
 
-This security policy applies to all public projects under the langflow-ai organization on GitHub. We prioritize security and continuously work to safeguard our systems. However, vulnerabilities can still exist. If you identify a security issue, please report it to us so we can address it promptly.
+This security policy applies to the CritiRAG repository. We prioritize security and continuously work to safeguard our systems. However, vulnerabilities can still exist. If you identify a security issue, please report it to us so we can address it promptly.
 
 ### Security and bug fix versions
 
@@ -15,7 +15,7 @@ We encourage responsible disclosure of security vulnerabilities. If you find or 
 
 ### Submit a report
 
-Go to the [OpenRAG Security page](https://github.com/langflow-ai/openrag/security), and then click **Report a vulnerability** to start a private conversation between you and the repository's maintainers.
+Go to the [CritiRAG Security page](https://github.com/critico-ai/critirag/security), and then click **Report a vulnerability** to start a private conversation between you and the repository's maintainers.
 
 Provide as many specific details as possible to help us reproduce and fix the issue quickly, including the following:
 
@@ -38,20 +38,20 @@ We will keep you updated on our progress.
 - Don't publicly disclose vulnerabilities until we have assessed, resolved, and notified affected users.
 - If you plan to present your research (e.g., at a conference or in a blog), share a draft with us at least 30 days in advance for review.
 - Disclosures must not include the following:
-  - Data from any OpenRAG customer projects
-  - OpenRAG user/customer information
-  - Details about OpenRAG employees, contractors, or partners
+  - Data from any CritiRAG customer projects
+  - CritiRAG user/customer information
+  - Details about CritiCo employees, contractors, or partners
 
 We appreciate your efforts in helping us maintain a secure platform, and we look forward to working together to resolve any issues responsibly.
 
 ## Known vulnerabilities
 
-The following known vulnerabilities are for the OpenRAG codebase.
+The following known vulnerabilities are for the CritiRAG codebase.
 
-This list doesn't include vulnerabilities within OpenRAG dependencies like OpenSearch and Langflow.
+This list doesn't include vulnerabilities within CritiRAG dependencies like OpenSearch and Langflow.
 For Langflow vulnerabilities, see the [Langflow SECURITY.md](https://github.com/langflow-ai/langflow/blob/main/SECURITY.md).
 
-There are no known vulnerabilities exclusive to the OpenRAG application at this time.
+There are no known vulnerabilities exclusive to the CritiRAG application at this time.
 
 ## Security configuration guidelines
 
@@ -59,6 +59,4 @@ There are no known vulnerabilities exclusive to the OpenRAG application at this 
 
 It is recommended that you set a Langflow password (`LANGFLOW_SUPERUSER_PASSWORD`) so the Langflow server starts with authentication enabled and the `langflow superuser` command disabled.
 
-You can set this password when you install OpenRAG, or you can [edit the OpenRAG `.env` file and redeploy the OpenRAG containers](https://docs.openr.ag/reference/configuration#set-environment-variables).
-
-For more information, see [OpenRAG's Langflow settings reference](https://docs.openr.ag/reference/configuration#langflow-settings).
+You can set this password when you install CritiRAG, or you can edit the CritiRAG `.env` file and redeploy the containers.

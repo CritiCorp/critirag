@@ -3,6 +3,10 @@ from typing import Dict, List
 from config.model_constants import (
     ANTHROPIC_DEFAULT_LANGUAGE_MODEL,
     ANTHROPIC_VALIDATION_MODELS,
+    GOOGLE_DEFAULT_EMBEDDING_MODEL,
+    GOOGLE_DEFAULT_LANGUAGE_MODEL,
+    GOOGLE_EMBEDDING_MODEL_PREFIX,
+    GOOGLE_VALIDATION_MODELS,
     OLLAMA_DEFAULT_LANGUAGE_MODEL_PATTERN,
     OPENAI_DEFAULT_EMBEDDING_MODEL,
     OPENAI_DEFAULT_LANGUAGE_MODEL,
@@ -417,4 +421,75 @@ class ModelsService:
 
         except Exception as e:
             logger.error(f"Error fetching IBM models: {str(e)}")
+            raise
+
+    async def get_google_models(self, api_key: str) -> Dict[str, List[Dict[str, str]]]:
+        """Fetch available models from Google Gemini API.
+
+        Uses the ?key= query parameter for authentication (not a Bearer token).
+        """
+        try:
+            _BASE = "https://generativelanguage.googleapis.com/v1beta"
+
+            async with httpx.AsyncClient() as client:
+                response = await client.get(
+                    f"{_BASE}/models",
+                    params={"key": api_key},
+                    timeout=10.0,
+                )
+
+            if response.status_code != 200:
+                logger.error(f"Failed to fetch Google models: {response.status_code}")
+                raise Exception(
+                    f"Google API returned status code {response.status_code}, {response.text}"
+                )
+
+            data = response.json()
+            all_models = data.get("models", [])
+
+            language_models = []
+            embedding_models = []
+
+            for model in all_models:
+                # Google model names come in as "models/gemini-2.5-flash" — strip the prefix
+                raw_name = model.get("name", "")
+                model_id = raw_name.replace("models/", "")
+                supported_methods = model.get("supportedGenerationMethods", [])
+
+                if model_id in GOOGLE_VALIDATION_MODELS and "generateContent" in supported_methods:
+                    language_models.append({
+                        "value": model_id,
+                        "label": model_id,
+                        "default": model_id == GOOGLE_DEFAULT_LANGUAGE_MODEL,
+                    })
+                elif GOOGLE_EMBEDDING_MODEL_PREFIX in model_id and "embedContent" in supported_methods:
+                    embedding_models.append({
+                        "value": model_id,
+                        "label": model_id,
+                        "default": model_id == GOOGLE_DEFAULT_EMBEDDING_MODEL,
+                    })
+
+            # Sort defaults first
+            language_models.sort(key=lambda x: (not x.get("default", False), x["value"]))
+            embedding_models.sort(key=lambda x: (not x.get("default", False), x["value"]))
+
+            if not language_models:
+                logger.warning(
+                    "Google API key is valid but no language models matched GOOGLE_VALIDATION_MODELS. "
+                    "The API returned %d models total.", len(all_models)
+                )
+            if not embedding_models:
+                logger.warning(
+                    "Google API key is valid but no embedding models matched prefix '%s'.",
+                    GOOGLE_EMBEDDING_MODEL_PREFIX,
+                )
+
+            logger.info("Google API key validated successfully")
+            return {
+                "language_models": language_models,
+                "embedding_models": embedding_models,
+            }
+
+        except Exception as e:
+            logger.error(f"Error fetching Google models: {str(e)}")
             raise

@@ -21,6 +21,7 @@ export interface OnboardingVariables {
   watsonx_endpoint?: string;
   watsonx_project_id?: string;
   ollama_endpoint?: string;
+  google_api_key?: string;
 }
 
 interface OnboardingResponse {

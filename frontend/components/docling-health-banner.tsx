@@ -76,7 +76,7 @@ function DoclingSetupDialog({
             <span className="font-semibold text-foreground">
               Start All Services
             </span>{" "}
-            in the TUI. Once docling-serve is running, refresh OpenRAG.
+            in the TUI. Once docling-serve is running, refresh CritiRAG.
           </DialogDescription>
         </div>
 

@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for helping improve OpenRAG's documentation! Please provide details about the issue or your request.
+        Thanks for helping improve CritiRAG's documentation! Please provide details about the issue or your request.
 
   - type: dropdown
     id: issue-type

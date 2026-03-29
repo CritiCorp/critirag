@@ -1803,6 +1803,9 @@ async def create_app():
     app.add_api_route(
         "/models/ibm", models.get_ibm_models, methods=["POST"], tags=["internal"]
     )
+    app.add_api_route(
+        "/models/google", models.get_google_models, methods=["POST"], tags=["internal"]
+    )
 
     # Onboarding endpoints
     app.add_api_route(

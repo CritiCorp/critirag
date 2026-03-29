@@ -18,7 +18,7 @@ import { buildSearchPayloadFilters } from "@/lib/filter-normalization";
 import { OnboardingStep } from "./onboarding-step";
 import OnboardingUpload from "./onboarding-upload";
 
-// Filters for OpenRAG documentation
+// Filters for CritiRAG documentation
 const OPENRAG_DOCS_FILTERS: FilterInput = {
   data_sources: [],
   document_types: [],
@@ -139,7 +139,7 @@ export function OnboardingContent({
     },
   });
 
-  const NUDGES = ["What is OpenRAG?"];
+  const NUDGES = ["What is CritiRAG?"];
 
   const handleNudgeClick = async (nudge: string) => {
     setSelectedNudge(nudge);

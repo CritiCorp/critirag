@@ -1,13 +1,13 @@
-# Contributing to OpenRAG
+# Contributing to CritiRAG
 
 ![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.13+-blue.svg)
 ![Node.js](https://img.shields.io/badge/node.js-18+-green.svg)
 
-**Thank you for your interest in contributing to OpenRAG!** 🎉
+**Thank you for your interest in contributing to CritiRAG!** 🎉
 
-Whether you're fixing a bug, adding a feature, improving documentation, or just exploring — every contribution matters and helps make OpenRAG better for everyone.
+Whether you're fixing a bug, adding a feature, improving documentation, or just exploring — every contribution matters and helps make CritiRAG better for everyone.
 
 This guide will help you set up your development environment and start contributing quickly.
 
@@ -30,15 +30,15 @@ This guide will help you set up your development environment and start contribut
 
 ## Quickstart
 
-Get OpenRAG running in three commands:
+Get CritiRAG running in three commands:
 
 ```bash
 make check_tools  # Verify you have all prerequisites
 make setup        # Install dependencies and create .env
-make dev          # Start OpenRAG
+make dev          # Start CritiRAG
 ```
 
-OpenRAG is now running locally on the following ports:
+CritiRAG is now running locally on the following ports:
 
 - **Frontend**: http://localhost:3000
 - **Langflow**: http://localhost:7860
@@ -71,7 +71,7 @@ podman machine start
 ```
 
 > [!IMPORTANT]
-> 8GB RAM is the minimum recommended for running OpenRAG smoothly. If you experience crashes or slowness, increase the memory allocation.
+> 8GB RAM is the minimum recommended for running CritiRAG smoothly. If you experience crashes or slowness, increase the memory allocation.
 
 ### Verify Prerequisites
 
@@ -89,12 +89,12 @@ You should see: `All required tools are installed.`
 1. Clone the repo and setup the project:
 
    ```bash
-   git clone https://github.com/langflow-ai/openrag.git
-   cd openrag
+   git clone https://github.com/critico-ai/critirag.git
+   cd critirag
    make setup
    ```
 
-2. Configure the required environment variables before starting OpenRAG:
+2. Configure the required environment variables before starting CritiRAG:
 
    ```env
    OPENAI_API_KEY=
@@ -107,9 +107,7 @@ You should see: `All required tools are installed.`
 
    If `LANGFLOW_SUPERUSER_PASSWORD` isn't set, then the Langflow instance starts without authentication enabled.
 
-   For more information, see the [OpenRAG environment variables reference](https://docs.openr.ag/reference/configuration).
-
-3. Start OpenRAG using one of the options described in the next section.
+3. Start CritiRAG using one of the options described in the next section.
     ```bash
     make dev      # With GPU support
     # or
@@ -120,11 +118,11 @@ You should see: `All required tools are installed.`
 
 ## Development Workflows
 
-There are multiple ways to start OpenRAG based on your use case:
+There are multiple ways to start CritiRAG based on your use case:
 
 * Local development environment: Recommended for development.
 * Full Docker stack: Simple build that runs everything in containers. Not ideal for development. Best for testing the full system.
-* Branch development: Build OpenRAG with a fork or branch of the [Langflow repository](https://github.com/langflow-ai/langflow).
+* Branch development: Build CritiRAG with a fork or branch of the [Langflow repository](https://github.com/langflow-ai/langflow).
 * Docling only: Run the Docling service by itself.
 
 ### Full Docker Stack (Simplest)
@@ -168,7 +166,7 @@ make docling
 
 ### C) Branch Development (Custom Langflow)
 
-Build and run OpenRAG with a custom Langflow branch:
+Build and run CritiRAG with a custom Langflow branch:
 
 ```bash
 # Use a specific branch
@@ -207,7 +205,7 @@ make docling-stop  # Stop docling-serve
 ### Stop All Services
 
 ```bash
-make stop  # Stops and removes all OpenRAG containers
+make stop  # Stops and removes all CritiRAG containers
 ```
 
 ### Check Status
@@ -287,7 +285,7 @@ make help_utils   # Utility commands (logs, cleanup, etc.)
 ```bash
 make test              # Run all backend tests
 make test-integration  # Run integration tests (requires infra)
-make test-sdk          # Run SDK tests (requires running OpenRAG)
+make test-sdk          # Run SDK tests (requires running CritiRAG)
 make lint              # Run linting checks
 ```
 
@@ -303,7 +301,7 @@ make test-ci-local  # Same as above, but builds images locally
 ## Project Structure
 
 ```
-openrag/
+critirag/
 ├── src/                    # Backend Python code
 │   ├── api/               # REST API endpoints
 │   ├── services/          # Business logic
@@ -328,7 +326,7 @@ openrag/
 ### Port Conflicts
 
 > [!NOTE]
-> Ensure these ports are available before starting OpenRAG:
+> Ensure these ports are available before starting CritiRAG:
 
 | Port | Service |
 |------|---------|
@@ -372,7 +370,7 @@ make health
 ### Need More Help?
 
 - Run `make help` to see all available commands
-- Check existing [issues](https://github.com/langflow-ai/openrag/issues)
+- Check existing [issues](https://github.com/critico-ai/critirag/issues)
 - Review [documentation](docs/)
 - Use `make status` and `make health` for debugging
 - View logs with `make logs`
@@ -397,19 +395,15 @@ make health
 
 ## Create a Pull Request
 
-If you want to propose your changes to the OpenRAG maintainers, make sure your code is fully tested and ready for review:
+If you want to propose your changes to the CritiRAG maintainers, make sure your code is fully tested and ready for review:
 
 1. **Fork and Branch**: Create a feature branch from `main`
 2. **Test**: Ensure tests pass with `make test` and `make lint`
 3. **Document**: Update relevant documentation.
-To build and test documentation changes, see [Contribute OpenRAG documentation](https://docs.openr.ag/support/contribute#contribute-documentation).
 4. **Commit**: Use clear, descriptive commit messages
 5. **PR Description**: Explain changes and include testing instructions
 
 > [!IMPORTANT]
 > All PRs must pass CI tests before merging.
 
-For more information and suggestions for successful contributions, see [Contribute to OpenRAG](https://docs.openr.ag/support/contribute#contribute-to-the-codebase).
-
-
-Thank you for contributing to OpenRAG! 🚀
+Thank you for contributing to CritiRAG! 🚀

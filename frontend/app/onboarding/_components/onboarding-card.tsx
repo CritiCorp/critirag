@@ -15,6 +15,7 @@ import { useGetTasksQuery } from "@/app/api/queries/useGetTasksQuery";
 import type { ProviderHealthResponse } from "@/app/api/queries/useProviderHealthQuery";
 import { useDoclingHealth } from "@/components/docling-health-banner";
 import AnthropicLogo from "@/components/icons/anthropic-logo";
+import GoogleLogo from "@/components/icons/google-logo";
 import IBMLogo from "@/components/icons/ibm-logo";
 import OllamaLogo from "@/components/icons/ollama-logo";
 import OpenAILogo from "@/components/icons/openai-logo";
@@ -28,6 +29,7 @@ import {
 import { cn } from "@/lib/utils";
 import { AnimatedProviderSteps } from "./animated-provider-steps";
 import { AnthropicOnboarding } from "./anthropic-onboarding";
+import { GoogleOnboarding } from "./google-onboarding";
 import { IBMOnboarding } from "./ibm-onboarding";
 import { OllamaOnboarding } from "./ollama-onboarding";
 import { OpenAIOnboarding } from "./openai-onboarding";
@@ -78,8 +80,8 @@ const OnboardingCard = ({
 
     // Define provider order based on whether it's embedding or not
     const providerOrder = isEmbedding
-      ? ["openai", "watsonx", "ollama"]
-      : ["anthropic", "openai", "watsonx", "ollama"];
+      ? ["openai", "watsonx", "ollama", "google"]
+      : ["anthropic", "openai", "watsonx", "ollama", "google"];
 
     // Find the first provider with an API key
     for (const provider of providerOrder) {
@@ -106,6 +108,12 @@ const OnboardingCard = ({
         currentSettings.providers.ollama?.endpoint
       ) {
         setModelProvider("ollama");
+        return;
+      } else if (
+        provider === "google" &&
+        currentSettings.providers.google?.has_api_key
+      ) {
+        setModelProvider("google");
         return;
       }
     }
@@ -135,6 +143,8 @@ const OnboardingCard = ({
       return currentSettings.providers.watsonx?.configured === true;
     } else if (provider === "ollama") {
       return currentSettings.providers.ollama?.configured === true;
+    } else if (provider === "google") {
+      return currentSettings.providers.google?.configured === true;
     }
     return false;
   };
@@ -159,6 +169,7 @@ const OnboardingCard = ({
     watsonx_endpoint: "",
     watsonx_project_id: "",
     ollama_endpoint: "",
+    google_api_key: "",
   });
 
   const [currentStep, setCurrentStep] = useState<number | null>(
@@ -423,6 +434,8 @@ const OnboardingCard = ({
       }
     } else if (currentProvider === "ollama" && settings.ollama_endpoint) {
       onboardingData.ollama_endpoint = settings.ollama_endpoint;
+    } else if (currentProvider === "google" && settings.google_api_key) {
+      onboardingData.google_api_key = settings.google_api_key;
     }
 
     // Record the start time when user clicks Complete
@@ -595,6 +608,29 @@ const OnboardingCard = ({
                       Ollama
                     </TabTrigger>
                   </TabsTrigger>
+                  <TabsTrigger
+                    value="google"
+                    className={cn(
+                      error &&
+                        modelProvider === "google" &&
+                        "data-[state=active]:border-destructive",
+                    )}
+                  >
+                    <TabTrigger
+                      selected={modelProvider === "google"}
+                      isLoading={isLoadingModels}
+                    >
+                      <div
+                        className={cn(
+                          "flex items-center justify-center gap-2 w-8 h-8 rounded-md border",
+                          modelProvider === "google" ? "bg-white" : "bg-muted",
+                        )}
+                      >
+                        <GoogleLogo className="w-4 h-4 shrink-0" />
+                      </div>
+                      Google
+                    </TabTrigger>
+                  </TabsTrigger>
                 </TabsList>
                 {!isEmbedding && (
                   <TabsContent value="anthropic">
@@ -651,6 +687,19 @@ const OnboardingCard = ({
                     }
                     existingEndpoint={
                       currentSettings?.providers?.ollama?.endpoint
+                    }
+                  />
+                </TabsContent>
+                <TabsContent value="google">
+                  <GoogleOnboarding
+                    setSettings={setSettings}
+                    setIsLoadingModels={setIsLoadingModels}
+                    isEmbedding={isEmbedding}
+                    hasEnvApiKey={
+                      currentSettings?.providers?.google?.has_api_key === true
+                    }
+                    alreadyConfigured={
+                      providerAlreadyConfigured && modelProvider === "google"
                     }
                   />
                 </TabsContent>

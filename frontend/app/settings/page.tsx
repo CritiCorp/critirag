@@ -568,7 +568,7 @@ function KnowledgeSourcesPage() {
                 </CardTitle>
                 <CardDescription className="text-sm">
                   Add the Google OAuth variables below to your <code>.env</code>{" "}
-                  then restart the OpenRAG containers.
+                  then restart the CritiRAG containers.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -1111,7 +1111,7 @@ function KnowledgeSourcesPage() {
               </Button>
             </div>
             <CardDescription>
-              API keys allow programmatic access to OpenRAG via the public API.
+              API keys allow programmatic access to CritiRAG via the public API.
               Keep your keys secure and never share them publicly.
             </CardDescription>
           </CardHeader>

@@ -5,7 +5,7 @@ test("has onboarding content", async ({ page }) => {
   await page.goto("/");
 
   // Expect a title "to contain" a substring.
-  await expect(page).toHaveTitle(/OpenRAG/);
+  await expect(page).toHaveTitle(/CritiRAG/);
 
   // Expect the onboarding content to be visible using the test id.
   await expect(page.getByTestId("onboarding-content")).toBeVisible({

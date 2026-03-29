@@ -470,7 +470,7 @@ function SearchPage() {
             <div className="inline-flex items-center justify-center h-5 w-5">
               <RefreshCw
                 className="h-4 w-4 text-primary animate-spin"
-                aria-label="OpenRAG doc is refreshing"
+                aria-label="CritiRAG doc is refreshing"
               />
             </div>
           );
@@ -668,14 +668,14 @@ function SearchPage() {
             disabled={refreshOpenragDocsMutation.isPending}
             onClick={async () => {
               try {
-                toast.info("Refreshing OpenRAG docs...");
+                toast.info("Refreshing CritiRAG docs...");
                 const result = await refreshOpenragDocsMutation.mutateAsync();
                 toast.success(result.message);
               } catch (error) {
                 toast.error(
                   error instanceof Error
                     ? error.message
-                    : "Failed to refresh OpenRAG docs",
+                    : "Failed to refresh CritiRAG docs",
                 );
               }
             }}

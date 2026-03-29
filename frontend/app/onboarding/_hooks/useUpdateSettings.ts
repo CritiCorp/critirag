@@ -39,6 +39,8 @@ export function useUpdateSettings(
           updatedSettings.anthropic_api_key = config.apiKey;
         } else if (provider === "watsonx") {
           updatedSettings.watsonx_api_key = config.apiKey;
+        } else if (provider === "google") {
+          updatedSettings.google_api_key = config.apiKey;
         }
       }
 

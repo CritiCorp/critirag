@@ -63,6 +63,10 @@ async def add_provider_credentials_to_headers(
             ollama_endpoint = transform_localhost_url(config.providers.ollama.endpoint)
         headers["X-LANGFLOW-GLOBAL-VAR-OLLAMA_BASE_URL"] = str(ollama_endpoint)
 
+    # Add Google Gemini credentials
+    if config.providers.google.api_key:
+        headers["X-LANGFLOW-GLOBAL-VAR-GOOGLE_API_KEY"] = str(config.providers.google.api_key)
+
     # Inject OpenSearch URL so Langflow flows always use the correct endpoint
     from config.settings import OPENSEARCH_HOST, OPENSEARCH_PORT
     headers["X-LANGFLOW-GLOBAL-VAR-OPENSEARCH_URL"] = f"https://{OPENSEARCH_HOST}:{OPENSEARCH_PORT}"
@@ -114,6 +118,10 @@ async def build_mcp_global_vars_from_config(
         else:
             ollama_endpoint = transform_localhost_url(config.providers.ollama.endpoint)
         global_vars["OLLAMA_BASE_URL"] = ollama_endpoint
+
+    # Add Google Gemini credentials
+    if config.providers.google.api_key:
+        global_vars["GOOGLE_API_KEY"] = config.providers.google.api_key
 
     # Add selected embedding model
     if config.knowledge.embedding_model:

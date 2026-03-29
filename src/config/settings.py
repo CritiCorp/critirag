@@ -122,6 +122,13 @@ OPENAI_EMBEDDING_DIMENSIONS = {
         "text-embedding-ada-002": 1536,
     }
 
+GOOGLE_EMBEDDING_DIMENSIONS = {
+    # Current recommended model — supports MRL flexible dimensions, default 3072
+    "gemini-embedding-2-preview": 3072,
+    # Legacy model (deprecated Jan 14, 2026 — avoid for new installations)
+    "text-embedding-004": 768,
+}
+
 WATSONX_EMBEDDING_DIMENSIONS = {
 # IBM Models
 "ibm/granite-embedding-107m-multilingual": 384,

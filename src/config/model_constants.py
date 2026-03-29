@@ -30,10 +30,22 @@ OPENAI_VALIDATION_MODELS = [
     "o4-mini-high",
 ]
 
+GOOGLE_VALIDATION_MODELS = [
+    "gemini-2.5-flash",
+    "gemini-2.5-pro",
+    "gemini-2.5-flash-lite",
+    "gemini-3.1-pro-preview",
+    "gemini-3.1-flash-preview",
+]
+
 OPENAI_DEFAULT_LANGUAGE_MODEL = "gpt-4o"
 OPENAI_DEFAULT_EMBEDDING_MODEL = "text-embedding-3-small"
 OPENAI_EMBEDDING_MODEL_PREFIX = "text-embedding"
 
 ANTHROPIC_DEFAULT_LANGUAGE_MODEL = "claude-sonnet-4-5-20250929"
+
+GOOGLE_DEFAULT_LANGUAGE_MODEL = "gemini-2.5-flash"
+GOOGLE_DEFAULT_EMBEDDING_MODEL = "gemini-embedding-2-preview"
+GOOGLE_EMBEDDING_MODEL_PREFIX = "gemini-embedding"
 
 OLLAMA_DEFAULT_LANGUAGE_MODEL_PATTERN = "gpt-oss"

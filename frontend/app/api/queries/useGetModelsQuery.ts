@@ -34,6 +34,10 @@ export interface IBMModelsParams {
   projectId?: string;
 }
 
+export interface GoogleModelsParams {
+  apiKey?: string;
+}
+
 export const useGetOpenAIModelsQuery = (
   params?: OpenAIModelsParams,
   options?: Omit<UseQueryOptions<ModelsResponse>, "queryKey" | "queryFn">,
@@ -205,6 +209,48 @@ export const useGetIBMModelsQuery = (
   return queryResult;
 };
 
+export const useGetGoogleModelsQuery = (
+  params?: GoogleModelsParams,
+  options?: Omit<UseQueryOptions<ModelsResponse>, "queryKey" | "queryFn">,
+) => {
+  const queryClient = useQueryClient();
+
+  async function getGoogleModels(): Promise<ModelsResponse> {
+    const url = new URL("/api/models/google", window.location.origin);
+    const body: { api_key?: string } = {};
+    if (params?.apiKey) {
+      body.api_key = params.apiKey;
+    }
+
+    const response = await fetch(url.toString(), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+    if (response.ok) {
+      return await response.json();
+    } else {
+      throw new Error("Failed to fetch Google models");
+    }
+  }
+
+  const queryResult = useQuery(
+    {
+      queryKey: ["models", "google", params],
+      queryFn: getGoogleModels,
+      staleTime: 0,
+      gcTime: 0,
+      retry: false,
+      ...options,
+    },
+    queryClient,
+  );
+
+  return queryResult;
+};
+
 /**
  * Hook that automatically fetches models for the current LLM provider
  * based on the settings configuration
@@ -259,6 +305,14 @@ export const useGetCurrentProviderModelsQuery = (
     },
   );
 
+  const googleModels = useGetGoogleModelsQuery(
+    { apiKey: "" },
+    {
+      enabled: currentProvider === "google" && options?.enabled !== false,
+      ...options,
+    },
+  );
+
   // Return the appropriate query result based on current provider
   switch (currentProvider) {
     case "openai":
@@ -269,6 +323,8 @@ export const useGetCurrentProviderModelsQuery = (
       return ollamaModels;
     case "watsonx":
       return ibmModels;
+    case "google":
+      return googleModels;
     default:
       // Return a default/disabled query if no provider is set
       return {

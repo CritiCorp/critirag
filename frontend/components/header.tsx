@@ -22,12 +22,12 @@ export function Header() {
       <div className="header-start-display px-[16px]">
         {/* Logo/Title */}
         <div className="flex items-center">
-          <Logo className="fill-primary" width={24} height={22} />
+          <Logo width={28} height={36} />
           <span
             className="text-lg font-semibold pl-2.5"
             style={{ fontFamily: '"IBM Plex Mono", monospace' }}
           >
-            OpenRAG
+            CritiRAG
           </span>
         </div>
       </div>

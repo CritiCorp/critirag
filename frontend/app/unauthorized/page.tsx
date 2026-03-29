@@ -42,7 +42,7 @@ export default function UnauthorizedPage() {
         {isIbmAuthMode ? (
           <p className="text-muted-foreground">
             Your session could not be authenticated. Please ensure you are
-            accessing OpenRAG through IBM watsonx.data with valid credentials.
+            accessing CritiRAG through IBM watsonx.data with valid credentials.
           </p>
         ) : (
           <p className="text-muted-foreground">
