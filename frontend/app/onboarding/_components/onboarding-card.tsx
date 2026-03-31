@@ -447,7 +447,7 @@ const OnboardingCard = ({
   const isComplete =
     (isEmbedding &&
       (!!settings.embedding_model || showProviderConfiguredMessage)) ||
-    (!isEmbedding && !!settings.llm_model && isDoclingHealthy);
+    (!isEmbedding && !!settings.llm_model);
 
   return (
     <AnimatePresence mode="wait">
@@ -722,11 +722,7 @@ const OnboardingCard = ({
                   <TooltipContent>
                     {isLoadingModels
                       ? "Loading models..."
-                      : !!settings.llm_model &&
-                          !!settings.embedding_model &&
-                          !isDoclingHealthy
-                        ? "docling-serve must be running to continue"
-                        : "Please fill in all required fields"}
+                      : "Please fill in all required fields"}
                   </TooltipContent>
                 )}
               </Tooltip>

@@ -1,10 +1,4 @@
 services:
-  critirag-docling:
-    image: quay.io/docling-project/docling-serve:latest
-    container_name: critirag-docling
-    ports:
-      - "5001:5001"
-
   opensearch:
     image: langflowai/openrag-opensearch:${CRITIRAG_VERSION:-latest}
     #build:
@@ -57,7 +51,6 @@ services:
     container_name: critirag-backend
     depends_on:
       - critirag-langflow
-      - critirag-docling
     environment:
       - OPENSEARCH_HOST=${OPENSEARCH_HOST:-opensearch}
       - LANGFLOW_URL=http://critirag-langflow:7860
@@ -173,7 +166,7 @@ services:
       - OPENSEARCH_PORT=${OPENSEARCH_PORT:-9200}
       - OPENSEARCH_URL=https://${OPENSEARCH_HOST:-opensearch}:${OPENSEARCH_PORT:-9200}
       - OPENSEARCH_INDEX_NAME=${OPENSEARCH_INDEX_NAME:-documents}
-      - DOCLING_SERVE_URL=${DOCLING_SERVE_URL:-http://critirag-docling:5001}
+      - DOCLING_SERVE_URL=${DOCLING_SERVE_URL:-http://host.docker.internal:5001}
       - FILENAME=None
       - MIMETYPE=None
       - FILESIZE=0
