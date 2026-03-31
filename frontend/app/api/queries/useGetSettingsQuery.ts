@@ -39,6 +39,10 @@ export interface ProviderSettings {
     endpoint?: string;
     configured?: boolean;
   };
+  google?: {
+    has_api_key?: boolean;
+    configured?: boolean;
+  };
 }
 
 export interface OnboardingState {

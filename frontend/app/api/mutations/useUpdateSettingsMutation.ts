@@ -34,10 +34,12 @@ export interface UpdateSettingsRequest {
   watsonx_endpoint?: string;
   watsonx_project_id?: string;
   ollama_endpoint?: string;
+  google_api_key?: string;
   remove_ollama_config?: boolean;
   remove_openai_config?: boolean;
   remove_anthropic_config?: boolean;
   remove_watsonx_config?: boolean;
+  remove_google_config?: boolean;
 }
 
 export interface UpdateSettingsResponse {

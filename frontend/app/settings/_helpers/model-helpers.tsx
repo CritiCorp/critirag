@@ -1,9 +1,10 @@
 import AnthropicLogo from "@/components/icons/anthropic-logo";
+import GoogleLogo from "@/components/icons/google-logo";
 import IBMLogo from "@/components/icons/ibm-logo";
 import OllamaLogo from "@/components/icons/ollama-logo";
 import OpenAILogo from "@/components/icons/openai-logo";
 
-export type ModelProvider = "openai" | "anthropic" | "ollama" | "watsonx";
+export type ModelProvider = "openai" | "anthropic" | "ollama" | "watsonx" | "google";
 
 export interface ModelOption {
   value: string;
@@ -21,6 +22,8 @@ export function getModelLogo(modelValue: string, provider?: ModelProvider) {
     return <OllamaLogo className="w-4 h-4" />;
   } else if (provider === "watsonx") {
     return <IBMLogo className="w-4 h-4" />;
+  } else if (provider === "google") {
+    return <GoogleLogo className="w-4 h-4" />;
   }
 
   // Fallback to model name analysis
@@ -89,6 +92,17 @@ export function getFallbackModels(provider: ModelProvider) {
             value: "ibm/slate-125m-english-rtrvr",
             label: "Slate 125M English Retriever",
           },
+        ],
+      };
+    case "google":
+      return {
+        language: [
+          { value: "gemini-2.0-flash", label: "Gemini 2.0 Flash" },
+          { value: "gemini-1.5-pro", label: "Gemini 1.5 Pro" },
+          { value: "gemini-1.5-flash", label: "Gemini 1.5 Flash" },
+        ],
+        embedding: [
+          { value: "text-embedding-004", label: "text-embedding-004" },
         ],
       };
     default:

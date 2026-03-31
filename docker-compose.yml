@@ -1,12 +1,12 @@
 services:
   opensearch:
-    image: langflowai/openrag-opensearch:${OPENRAG_VERSION:-latest}
+    image: langflowai/openrag-opensearch:${CRITIRAG_VERSION:-latest}
     #build:
     #context: .
     #dockerfile: Dockerfile
     container_name: os
     depends_on:
-      - openrag-backend
+      - critirag-backend
     environment:
       - discovery.type=single-node
       - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_PASSWORD}
@@ -43,17 +43,17 @@ services:
     ports:
       - "5601:5601"
 
-  openrag-backend:
-    image: langflowai/openrag-backend:${OPENRAG_VERSION:-latest}
+  critirag-backend:
+    image: critirag-backend:local
     build:
       context: .
       dockerfile: Dockerfile.backend
-    container_name: openrag-backend
+    container_name: critirag-backend
     depends_on:
-      - langflow
+      - critirag-langflow
     environment:
       - OPENSEARCH_HOST=${OPENSEARCH_HOST:-opensearch}
-      - LANGFLOW_URL=http://langflow:7860
+      - LANGFLOW_URL=http://critirag-langflow:7860
       - LANGFLOW_PUBLIC_URL=${LANGFLOW_PUBLIC_URL}
       - LANGFLOW_AUTO_LOGIN=${LANGFLOW_AUTO_LOGIN}
       - LANGFLOW_SUPERUSER=${LANGFLOW_SUPERUSER}
@@ -73,6 +73,7 @@ services:
       - WATSONX_ENDPOINT=${WATSONX_ENDPOINT}
       - WATSONX_PROJECT_ID=${WATSONX_PROJECT_ID}
       - OLLAMA_ENDPOINT=${OLLAMA_ENDPOINT}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
       - GOOGLE_OAUTH_CLIENT_ID=${GOOGLE_OAUTH_CLIENT_ID}
       - GOOGLE_OAUTH_CLIENT_SECRET=${GOOGLE_OAUTH_CLIENT_SECRET}
       - MICROSOFT_GRAPH_OAUTH_CLIENT_ID=${MICROSOFT_GRAPH_OAUTH_CLIENT_ID}
@@ -105,34 +106,34 @@ services:
       - UPLOAD_BATCH_SIZE=${UPLOAD_BATCH_SIZE:-25}
       - MAX_WORKERS=${MAX_WORKERS:-4}
     volumes:
-      - ${OPENRAG_DOCUMENTS_PATH:-./openrag-documents}:/app/openrag-documents:U,z
-      - ${OPENRAG_KEYS_PATH:-./keys}:/app/keys:U,z
-      - ${OPENRAG_FLOWS_PATH:-./flows}:/app/flows:U,z
-      - ${OPENRAG_CONFIG_PATH:-./config}:/app/config:U,z
-      - ${OPENRAG_DATA_PATH:-./data}:/app/data:U,z
+      - ${CRITIRAG_DOCUMENTS_PATH:-./critirag-documents}:/app/openrag-documents:U,z
+      - ${CRITIRAG_KEYS_PATH:-./keys}:/app/keys:U,z
+      - ${CRITIRAG_FLOWS_PATH:-./flows}:/app/flows:U,z
+      - ${CRITIRAG_CONFIG_PATH:-./config}:/app/config:U,z
+      - ${CRITIRAG_DATA_PATH:-./data}:/app/data:U,z
 
-  openrag-frontend:
-    image: langflowai/openrag-frontend:${OPENRAG_VERSION:-latest}
+  critirag-frontend:
+    image: critirag-frontend:local
     build:
       context: .
       dockerfile: Dockerfile.frontend
-    container_name: openrag-frontend
+    container_name: critirag-frontend
     depends_on:
-      - openrag-backend
+      - critirag-backend
     environment:
-      - OPENRAG_BACKEND_HOST=openrag-backend
+      - CRITIRAG_BACKEND_HOST=critirag-backend
     ports:
       - "${FRONTEND_PORT:-3000}:3000"
 
-  langflow:
+  critirag-langflow:
     volumes:
-      - ${OPENRAG_FLOWS_PATH:-./flows}:/app/flows:U,z
+      - ${CRITIRAG_FLOWS_PATH:-./flows}:/app/flows:U,z
       - ${LANGFLOW_DATA_PATH:-./langflow-data}:/app/langflow-data:U,z
-    image: langflowai/openrag-langflow:${OPENRAG_VERSION:-latest}
+    image: critirag-langflow:local
     build:
       context: .
       dockerfile: Dockerfile.langflow
-    container_name: langflow
+    container_name: critirag-langflow
     ports:
       - "${LANGFLOW_PORT:-7860}:7860"
     environment:
@@ -178,5 +179,5 @@ services:
       - LANGFLOW_SUPERUSER_PASSWORD=${LANGFLOW_SUPERUSER_PASSWORD}
       - LANGFLOW_NEW_USER_IS_ACTIVE=${LANGFLOW_NEW_USER_IS_ACTIVE}
       - LANGFLOW_ENABLE_SUPERUSER_CLI=${LANGFLOW_ENABLE_SUPERUSER_CLI}
-      # - DEFAULT_FOLDER_NAME=OpenRAG
+      - DEFAULT_FOLDER_NAME=CritiRAG
       - HIDE_GETTING_STARTED_PROGRESS=true

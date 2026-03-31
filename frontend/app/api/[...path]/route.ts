@@ -36,8 +36,8 @@ export async function PATCH(
 }
 
 async function proxyRequest(request: NextRequest, params: { path: string[] }) {
-  const backendHost = process.env.OPENRAG_BACKEND_HOST || "localhost";
-  const backendSSL = process.env.OPENRAG_BACKEND_SSL || false;
+  const backendHost = process.env.CRITIRAG_BACKEND_HOST || "localhost";
+  const backendSSL = process.env.CRITIRAG_BACKEND_SSL || false;
   const path = params.path.join("/");
   const searchParams = request.nextUrl.searchParams.toString();
   let backendUrl = `http://${backendHost}:8000/${path}${searchParams ? `?${searchParams}` : ""}`;

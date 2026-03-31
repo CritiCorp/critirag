@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.4
 # BuildKit: enables cache mounts and better layer reuse.
 #
-# Build: docker build -t openrag-backend .
+# Build: docker build -t critirag-backend .
 
 # -----------------------------------------------------------------------------
 # Stage: base (system + uv)

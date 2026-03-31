@@ -1,7 +1,10 @@
+"use client";
+
 import { useRouter, useSearchParams } from "next/navigation";
 import { type ReactNode, useEffect, useState } from "react";
 import { useGetSettingsQuery } from "@/app/api/queries/useGetSettingsQuery";
 import AnthropicLogo from "@/components/icons/anthropic-logo";
+import GoogleLogo from "@/components/icons/google-logo";
 import IBMLogo from "@/components/icons/ibm-logo";
 import OllamaLogo from "@/components/icons/ollama-logo";
 import OpenAILogo from "@/components/icons/openai-logo";
@@ -9,6 +12,7 @@ import { useProviderHealth } from "@/components/provider-health-banner";
 import { useAuth } from "@/contexts/auth-context";
 import type { ModelProvider } from "../_helpers/model-helpers";
 import AnthropicSettingsDialog from "./anthropic-settings-dialog";
+import GoogleSettingsDialog from "./google-settings-dialog";
 import ModelProviderCard from "./model-provider-card";
 import OllamaSettingsDialog from "./ollama-settings-dialog";
 import OpenAISettingsDialog from "./openai-settings-dialog";
@@ -32,6 +36,7 @@ export const ModelProviders = () => {
     "ollama",
     "watsonx",
     "anthropic",
+    "google",
   ];
 
   // Handle URL search param to open dialogs
@@ -87,6 +92,12 @@ export const ModelProviders = () => {
       logoColor: "text-white",
       logoBgColor: "bg-[#1063FE]",
     },
+    google: {
+      name: "Google",
+      logo: GoogleLogo,
+      logoColor: "",
+      logoBgColor: "bg-white",
+    },
   };
 
   const currentLlmProvider =
@@ -129,6 +140,10 @@ export const ModelProviders = () => {
       />
       <WatsonxSettingsDialog
         open={dialogOpen === "watsonx"}
+        setOpen={handleCloseDialog}
+      />
+      <GoogleSettingsDialog
+        open={dialogOpen === "google"}
         setOpen={handleCloseDialog}
       />
     </>

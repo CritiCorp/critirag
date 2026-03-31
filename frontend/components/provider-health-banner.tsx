@@ -51,6 +51,7 @@ const providerTitleMap: Record<ModelProvider, string> = {
   anthropic: "Anthropic",
   ollama: "Ollama",
   watsonx: "IBM watsonx.ai",
+  google: "Google",
 };
 
 export function ProviderHealthBanner({ className }: ProviderHealthBannerProps) {
